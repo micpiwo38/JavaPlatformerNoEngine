@@ -24,27 +24,22 @@ public class KeyboardInputs implements KeyListener {
     @Override
     public void keyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getKeyCode()){
-            //La gauche
+            //GAUCHE
             case KeyEvent.VK_Q:
-                //System.out.println("La gauche");
-                gamePanel.setDirection(LEFT);
+                gamePanel.getGame().getPlayer().setLeft(true);
                 break;
-            //La droite
+            //DROITE
             case KeyEvent.VK_D:
-                //System.out.println("La droite");
-                gamePanel.setDirection(RIGHT);
+                gamePanel.getGame().getPlayer().setRight(true);
                 break;
-            //Le bas
+            //BAS
             case KeyEvent.VK_S:
-                //System.out.println("Le bas");
-                gamePanel.setDirection(DOWN);
+                gamePanel.getGame().getPlayer().setDown(true);
                 break;
-            //Haut
+            //HAUT
             case KeyEvent.VK_Z:
-                //System.out.println("Le haut");
-                gamePanel.setDirection(UP);
+                gamePanel.getGame().getPlayer().setUp(true);
                 break;
-
         }
     }
 
@@ -52,11 +47,21 @@ public class KeyboardInputs implements KeyListener {
     //Touche relachée
     public void keyReleased(KeyEvent keyEvent) {
         switch (keyEvent.getKeyCode()){
+            //GAUCHE
             case KeyEvent.VK_Q:
+                gamePanel.getGame().getPlayer().setLeft(false);
+                break;
+            //DROITE
             case KeyEvent.VK_D:
+                gamePanel.getGame().getPlayer().setRight(false);
+                break;
+            //BAS
             case KeyEvent.VK_S:
+                gamePanel.getGame().getPlayer().setDown(false);
+                break;
+            //HAUT
             case KeyEvent.VK_Z:
-                gamePanel.setMoving(false);
+                gamePanel.getGame().getPlayer().setUp(false);
                 break;
         }
     }

@@ -14,7 +14,8 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
     }
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
-        //System.out.println("Le clic");
+        if(mouseEvent.getButton() == MouseEvent.BUTTON1)
+            gamePanel.getGame().getPlayer().setAttacking(true);
     }
 
     @Override

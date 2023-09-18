@@ -11,6 +11,14 @@ public class Constants {
 
     public static class PlayerConstants{
         //Constante = chaque etat de l'animation du player
+        //Determine la colone de Atlas Sprites
+        /*
+            - 0 = ligne Idle
+            - 1 = ligne Run
+            - 2 = ligne Jump
+            - 3 = ligne Fall
+            - 4 = ligne ...
+         */
         public static final int IDLE = 0;
         public static final int RUNNING = 1;
 

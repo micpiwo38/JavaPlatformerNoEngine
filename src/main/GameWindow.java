@@ -1,6 +1,8 @@
 package main;
 
 import javax.swing.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
 public class GameWindow {
     private JFrame jFrame;
@@ -22,5 +24,18 @@ public class GameWindow {
         jFrame.pack();
         //Par defaut visible = false
         jFrame.setVisible(true);
+
+        jFrame.addWindowFocusListener(new WindowFocusListener() {
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+
+            }
+
+            @Override
+            //Quand on clic sur un autre element que le jeux (navigateur, fenetre windows, etc...)
+            public void windowLostFocus(WindowEvent e) {
+                gamePanel.getGame().windowFocusLost();
+            }
+        });
     }
 }
