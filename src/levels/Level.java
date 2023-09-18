@@ -11,4 +11,9 @@ public class Level {
     public int getSpriteIndex(int x, int y){
         return lvlData[y][x];
     }
+
+    //Retourner le niveau courant
+    public int[][] getLevelData(){
+        return lvlData;
+    }
 }
