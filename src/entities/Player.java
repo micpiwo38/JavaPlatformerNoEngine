@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import static utils.Constants.PlayerConstants.*;
-import static utils.HelpMethods.CanMoveHere;
+import static utils.HelpMethods.*;
 
 public class Player extends Entity{
     //Variables
@@ -17,9 +17,9 @@ public class Player extends Entity{
     //Player Action
     private int playerAction = IDLE;
     //Les touches clavier
-    private boolean left, up, right, down;
+    private boolean left, up, right, down, jump;
     //Vitesse du player
-    private float playerSpeed = 2.0f;
+    private float playerSpeed = 1.0f * Game.SCALE;
     //Condition bool bouger et attaquer
     private boolean moving = false, attacking = false;
 
@@ -33,6 +33,13 @@ public class Player extends Entity{
     private float xDrawOffset = 21 * Game.SCALE;
     private float yDrawOffset = 4 * Game.SCALE;
 
+    //Variables jump & Gravity
+    private float airSpeed = 0f;
+    private float gravity = 0.04f * Game.SCALE;
+    private float jumpSpeed = -2.25f * Game.SCALE;
+    private float fallSpeedAfterCollision = 0.5f * Game.SCALE;
+    private boolean inAir = false;
+
 
     //Constructeur
     public Player(float x, float y, int width, int height) {
@@ -41,7 +48,9 @@ public class Player extends Entity{
         loadAnimation();
         //Dans la tuile de 64 * 40 => le player est positioner a 20 en x et 28 en y
         //La hitbox du player = pos x, pos y, 20 * 2 et 28 * 2
-        initHitbox(x, y, 20 * Game.SCALE, 28 * Game.SCALE);
+        //Pour plus de precision on applique 27 en hauteur
+        initHitbox(x, y, (int)(20 * Game.SCALE), (int)(27 * Game.SCALE));
+
     }
 
     //Methodes = Mise a jour
@@ -85,6 +94,15 @@ public class Player extends Entity{
         else
             playerAction = IDLE;
 
+        //Aniamtion de saut
+        if(inAir){
+            if(airSpeed < 0)
+                playerAction = JUMP;
+            else
+                playerAction = FALLING;
+        }
+
+
         if(attacking)
             playerAction = ATTACK;
 
@@ -102,32 +120,77 @@ public class Player extends Entity{
     private void updatePosition() {
         //Par defaut ANIMATION = IDLE et le player ne bouge pas
         moving = false;
+        if(jump)
+            jump();
 
         //Si on appuie sur rien => on retourne rien
-        if(!left && !right && !up && !down)
+        if(!left && !right && !inAir)
             return;
 
         //Vitesse temporaire
-        float xSpeed = 0, ySpeed = 0;
+        float xSpeed = 0;
 
         //Horizontale
-        if(left && !right)
-            xSpeed = -playerSpeed;
-        else if (right && !left)
-            xSpeed = playerSpeed;
+        if(left)
+            xSpeed -= playerSpeed;
+        if (right)
+            xSpeed += playerSpeed;
+
+        //Si on ne touche plus le sol
+        if(!inAir)
+            //IsEntityOnFloor => check si on touche le sol a l'aide des 2 angle bottom left et right de la hitbox du player
+            if(!IsEntityOnFloor(hitbox, lvlData))
+                inAir = true;
 
 
-        //Verticale
-        if(up && !down)
-            ySpeed = -playerSpeed;
-        else if (down && !up)
-            ySpeed = playerSpeed;
 
+        //Si le player ne touche pas le sol
+        if(inAir){
+            if(CanMoveHere(hitbox.x, hitbox.y + airSpeed, hitbox.width, hitbox.height, lvlData)){
+                //Le saut increse la position de la hitbox (donc le player)
+                hitbox.y += airSpeed;
+                //Pour faire chuter le plauer on increse airSpeed = 0.04f * Game.SCALE;
+                airSpeed += gravity;
+                //On met a jour la position Horizontale
+                updateXPos(xSpeed);
+            }else{
+                //touche le plafond ou le sol
+                hitbox.y = GetEntityYPosUnderRoofAboveFloor(hitbox, airSpeed);
+                //si on saute
+                if(airSpeed > 0)
+                    //Si on touche le sol = reset les valeur du saut
+                    resetInAir();
+                else
+                    //Touche le plafond
+                    airSpeed = fallSpeedAfterCollision;
+                updateXPos(xSpeed);
+            }
+        }else
+            updateXPos(xSpeed);
+        moving = true;
+    }
+
+    private void jump() {
+        if(inAir)
+            return;
+        inAir = true;
+        airSpeed = jumpSpeed;
+    }
+
+    private void resetInAir() {
+        //reset le saut
+        inAir = false;
+        airSpeed = 0f;
+    }
+
+    //Mise a jour de la position horizontale du player
+    private void updateXPos(float xSpeed){
         //Si on peu bouger = la hitbox X + la vitesse, idem en y et la hitbox largeur et hauteur et le tableau du niveau
-        if(CanMoveHere(hitbox.x + xSpeed, hitbox.y + ySpeed, hitbox.width, hitbox.height, lvlData)){
+        if(CanMoveHere(hitbox.x + xSpeed, hitbox.y, hitbox.width, hitbox.height, lvlData)){
             hitbox.x += xSpeed;
-            hitbox.y += ySpeed;
-            moving = true;
+        }else{
+            //On est en collision
+            hitbox.x = GetEntityXPosNextToWall(hitbox, xSpeed);
         }
     }
 
@@ -163,6 +226,9 @@ public class Player extends Entity{
     //Charger les données du niveau dans un tableau 2D et check les collisions avec la position du player
     public void loadLevelData(int[][] lvlData){
         this.lvlData = lvlData;
+        //Applique la gravité si le player ne touche pas le sol
+        if(!IsEntityOnFloor(hitbox, lvlData))
+            inAir = true;
     }
 
     //Stopper le player en cas de perte du focus
@@ -207,5 +273,9 @@ public class Player extends Entity{
 
     public void setDown(boolean down) {
         this.down = down;
+    }
+
+    public void setJump(boolean jump){
+        this.jump = jump;
     }
 }

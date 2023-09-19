@@ -1,5 +1,7 @@
 package entities;
 
+import main.Game;
+
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
@@ -26,9 +28,11 @@ public abstract class Entity {
         graphics.drawRect((int)hitbox.x, (int)hitbox.y, (int)hitbox.width, (int)hitbox.height);
     }
 
-    protected void initHitbox(float x, float y, float width, float height) {
+    protected void initHitbox(float x, float y, int width, int height) {
         //Instance de la classe Rectangle
         //x , y, w, h
         hitbox = new Rectangle2D.Float(x, y, width, height);
     }
+
+
 }

@@ -1,7 +1,8 @@
 package main;
 
-import entities.Player;
-import levels.LevelManager;
+import gamestates.GameState;
+import gamestates.Menu;
+import gamestates.Playing;
 
 import java.awt.*;
 
@@ -15,9 +16,7 @@ public class Game implements Runnable{
     //UPS = update per second
     private final int UPS_SET = 200;
 
-    private Player player;
-    //Levels 1
-    private LevelManager levelManager;
+
 
     public final static int TILES_DEFAULT_SIZE = 32;
     public final static float SCALE = 2f;
@@ -27,6 +26,9 @@ public class Game implements Runnable{
 
     public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
     public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
+
+    private Playing playing;
+    private Menu menu;
 
 
 
@@ -47,10 +49,8 @@ public class Game implements Runnable{
     }
 
     private void initClasses() {
-        levelManager = new LevelManager(this);
-        player = new Player(100,200, (int) (64 * SCALE), (int) (40 * SCALE));
-        player.loadLevelData(levelManager.getCurrentLevel().getLevelData());
-
+        menu = new Menu(this);
+        playing = new Playing(this);
     }
 
     private void startGameLoop(){
@@ -59,16 +59,33 @@ public class Game implements Runnable{
     }
 
     public void update(){
-        levelManager.update();
-        player.update();
+        switch (GameState.state){
+            case PLAYING -> {
+                playing.update();
+            }
+            case MENU -> {
+                menu.update();
+            }
+            case OPTIONS, QUIT -> {
+                System.exit(0);
+            }
+        }
     }
 
     //Le render
     public void render(Graphics graphics){
-        //On dessine en 1er le niveau
-        levelManager.draw(graphics);
-        //Puis le player
-        player.render(graphics);
+
+
+        switch (GameState.state){
+
+            case PLAYING -> {
+                playing.draw(graphics);
+            }
+            case MENU -> {
+                menu.draw(graphics);
+            }
+        }
+
 
     }
 
@@ -124,11 +141,17 @@ public class Game implements Runnable{
 
     //Quand on quit le focus du jeux
     public void  windowFocusLost(){
-        player.resetBooleansDirection();
+        if(GameState.state == GameState.PLAYING)
+            playing.getPlayer().resetBooleansDirection();
     }
 
-    //GETTER SETTER PLAYER CLASSE
-    public Player getPlayer(){
-        return player;
+    public Menu getMenu(){
+        return menu;
     }
+
+    public Playing getPlaying(){
+        return playing;
+    }
+
+
 }

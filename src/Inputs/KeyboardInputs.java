@@ -1,5 +1,6 @@
 package Inputs;
 
+import gamestates.GameState;
 import main.Game;
 import main.GamePanel;
 
@@ -23,46 +24,28 @@ public class KeyboardInputs implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
-        switch (keyEvent.getKeyCode()){
-            //GAUCHE
-            case KeyEvent.VK_Q:
-                gamePanel.getGame().getPlayer().setLeft(true);
-                break;
-            //DROITE
-            case KeyEvent.VK_D:
-                gamePanel.getGame().getPlayer().setRight(true);
-                break;
-            //BAS
-            case KeyEvent.VK_S:
-                gamePanel.getGame().getPlayer().setDown(true);
-                break;
-            //HAUT
-            case KeyEvent.VK_Z:
-                gamePanel.getGame().getPlayer().setUp(true);
-                break;
+        switch (GameState.state){
+
+            case PLAYING -> {
+                gamePanel.getGame().getPlaying().keyboardPressed(keyEvent);
+            }
+            case MENU -> {
+                gamePanel.getGame().getMenu().keyboardPressed(keyEvent);
+            }
         }
     }
 
     @Override
     //Touche relachée
     public void keyReleased(KeyEvent keyEvent) {
-        switch (keyEvent.getKeyCode()){
-            //GAUCHE
-            case KeyEvent.VK_Q:
-                gamePanel.getGame().getPlayer().setLeft(false);
-                break;
-            //DROITE
-            case KeyEvent.VK_D:
-                gamePanel.getGame().getPlayer().setRight(false);
-                break;
-            //BAS
-            case KeyEvent.VK_S:
-                gamePanel.getGame().getPlayer().setDown(false);
-                break;
-            //HAUT
-            case KeyEvent.VK_Z:
-                gamePanel.getGame().getPlayer().setUp(false);
-                break;
+        switch (GameState.state){
+
+            case PLAYING -> {
+                gamePanel.getGame().getPlaying().keyboardReleased(keyEvent);
+            }
+            case MENU -> {
+                gamePanel.getGame().getMenu().keyboardReleased(keyEvent);
+            }
         }
     }
 }
